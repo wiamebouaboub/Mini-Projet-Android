@@ -4,11 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
 import androidx.compose.material.Text
+import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
 import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
+import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -16,18 +19,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 
+@OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
 @Composable
-fun Profil(navController: NavController) {
-   /* val windowClass=WindowSizeClass
-    when (windowClass.javaClass) {
-        WindowWidthSizeClass.Compact -> {*/
+fun Profil(windowSizeClass: WindowSizeClass, navController: NavController) {
+    when (windowSizeClass.widthSizeClass) {
+        WindowWidthSizeClass.Compact -> {
             Column(
                 Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceEvenly,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painterResource(id = R.mipmap.w),
+                    painterResource(id = R.drawable.w),
                     contentDescription = "PhotoDeProfil",
                     modifier = Modifier.size(400.dp)
                 )
@@ -49,7 +52,7 @@ fun Profil(navController: NavController) {
                 Spacer(Modifier.height(50.dp))
                 Row() {
                     Image(
-                        painterResource(id = R.mipmap.mail),
+                        painterResource(id = R.drawable.mail),
                         contentDescription = "PhotoDeProfil",
                         modifier = Modifier.size(30.dp)
                     )
@@ -61,28 +64,29 @@ fun Profil(navController: NavController) {
                 }
                 Row() {
                     Image(
-                        painterResource(id = R.mipmap.linkedin),
+                        painterResource(id = R.drawable.linkedin),
                         contentDescription = "PhotoDeProfil",
                         modifier = Modifier.size(30.dp)
                     )
                     Text(
-                        text = "www.linkedin.com/in/nicolas-singer",
+                        text = "www.linkedin.com/in/wiame.bouaboub",
                         fontSize = 12.sp,
                         fontStyle = FontStyle.Italic
                     )
                 }
-                Button(onClick = {  navController.navigate("film")}) {
-                    Text("Démarrer")
+                Button(onClick = { navController.navigate("Films") }) {
+                    Text(text="Démarrer",color= Color.White)
                 }
             }
         }
-        /*else ->{
+        else -> {
             Row(
                 Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically) {
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Column() {
                     Image(
-                        painterResource(id = R.mipmap.w),
+                        painterResource(id = R.drawable.w),
                         contentDescription = "PhotoDeProfil",
                         modifier = Modifier.size(200.dp)
                     )
@@ -106,7 +110,7 @@ fun Profil(navController: NavController) {
                 Column() {
                     Row() {
                         Image(
-                            painterResource(id = R.mipmap.mail),
+                            painterResource(id = R.drawable.mail),
                             contentDescription = "PhotoDeProfil",
                             modifier = Modifier.size(30.dp)
                         )
@@ -118,21 +122,22 @@ fun Profil(navController: NavController) {
                     }
                     Row() {
                         Image(
-                            painterResource(id = R.mipmap.linkedin),
+                            painterResource(id = R.drawable.linkedin),
                             contentDescription = "PhotoDeProfil",
                             modifier = Modifier.size(30.dp)
                         )
                         Text(
-                            text = "www.linkedin.com/in/nicolas-singer",
+                            text = "www.linkedin.com/in/wiame.bouaboub",
                             fontSize = 12.sp,
                             fontStyle = FontStyle.Italic
                         )
                     }
-                    Button(onClick = { navController.navigate("film")}) {
-                        Text("Démarrer")
+                    Button(onClick = { navController.navigate("films") }) {
+                        Text(text="Démarrer",
+                        color= Color.White)
                     }
                 }
             }
         }
-
-}*/
+    }
+}

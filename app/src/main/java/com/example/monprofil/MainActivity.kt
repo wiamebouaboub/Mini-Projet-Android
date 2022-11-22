@@ -3,28 +3,28 @@ package com.example.monprofil
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.material.Text
-import androidx.compose.material.Button
+import androidx.activity.viewModels
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Movie
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Slideshow
 import androidx.compose.material3.windowsizeclass.ExperimentalMaterial3WindowSizeClassApi
-import androidx.compose.material3.windowsizeclass.WindowSizeClass
-import androidx.compose.material3.windowsizeclass.WindowWidthSizeClass
 import androidx.compose.material3.windowsizeclass.calculateWindowSizeClass
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.monprofil.ui.theme.MonProfilTheme
+
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3WindowSizeClassApi::class)
@@ -34,22 +34,34 @@ class MainActivity : ComponentActivity() {
 
             MonProfilTheme {
                 // A surface container using the 'background' color from the theme
-                @Composable
-                fun Screen() {
-                    val navController = rememberNavController()
+                val windowSizeClass = calculateWindowSizeClass(this)
+                val navController = rememberNavController()
+                val viewModel : MainViewModel by viewModels()
+
                     NavHost(
                         navController = navController,
                         startDestination = "profil") {
                         composable("profil") {
-                            Profil(navController)
+                            Profil(windowSizeClass,navController)
                         }
-                        composable("film") {
-                            Film(navController)
+                        composable("films") {
+                            NavigationLayout(navController,viewModel){Films(navController,viewModel)};
+                        }
+                        composable("Series") {
+                            NavigationLayout(navController,viewModel){Series(navController, viewModel)};
+                        }
+                        composable("Personnes") {
+                            NavigationLayout(navController,viewModel){Personnes(navController, viewModel)};
+                        }
+                        composable("film/"+"{id}") {NavBackStack ->
+                            NavBackStack.arguments?.getString("id")
+                                ?.let { Film(viewModel, id= it) };
+                        }
+                        composable("serie/"+"{id}") {NavBackStack ->
+                            NavBackStack.arguments?.getString("id")
+                                ?.let { Serie(viewModel, id= it) };
                         }
                     }
-                }
-                val windowSizeClass = calculateWindowSizeClass(this)
-                    Profile(windowSizeClass)
 
                 }
             }
@@ -57,121 +69,60 @@ class MainActivity : ComponentActivity() {
     }
 
 @Composable
-fun Profile(windowClass: WindowSizeClass) {
-    when (windowClass.widthSizeClass) {
-        WindowWidthSizeClass.Compact -> {
-            Column(
-                Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painterResource(id = R.mipmap.w),
-                    contentDescription = "PhotoDeProfil",
-                    modifier = Modifier.size(400.dp)
-                )
-                Text(
-                    text = "Wiame Bouaboub",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "Etudiante",
-                    fontSize = 15.sp
-                )
-                Text(
-                    text = "Ecole d'ingénieurs ISIS Castres - INU Champollion",
-                    fontSize = 15.sp,
-                    fontStyle = FontStyle.Italic
-                )
-                Spacer(Modifier.height(50.dp))
-                Row() {
-                    Image(
-                        painterResource(id = R.mipmap.mail),
-                        contentDescription = "PhotoDeProfil",
-                        modifier = Modifier.size(30.dp)
+fun NavigationLayout(navController : NavController, viewModel: MainViewModel, content: @Composable() () -> Unit){
+    Surface(color = MaterialTheme.colors.background) {
+        var motcle by remember { mutableStateOf("") }
+        Scaffold(
+            topBar={
+            TopAppBar(
+                title = { Text(text = "Recherche") },
+                actions = {
+                    TextField(
+                        value = motcle,
+                        onValueChange = {
+                            motcle=it
+                        },
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(onDone = {viewModel.searchMovies(motcle); }),
+                        trailingIcon = {
+                            Icon(
+                                imageVector = Icons.Filled.Search,
+                                tint = Color.White,
+                                contentDescription = "loupe"
+                            )
+                        },
                     )
-                    Text(
-                        text = "wiame.bouaboub@etud.univ-jfc.fr",
-                        fontSize = 12.sp,
-                        fontStyle = FontStyle.Italic
-                    )
-                }
-                Row() {
-                    Image(
-                        painterResource(id = R.mipmap.linkedin),
-                        contentDescription = "PhotoDeProfil",
-                        modifier = Modifier.size(30.dp)
-                    )
-                    Text(
-                        text = "www.linkedin.com/in/nicolas-singer",
-                        fontSize = 12.sp,
-                        fontStyle = FontStyle.Italic
-                    )
-                }
-                Button(onClick = {  /*navController.navigate("film")*/ }) {
-                    Text("Démarrer")
-                }
-            }
-        }
-        else ->{
-            Row(
-                Modifier.fillMaxSize(),
-                verticalAlignment = Alignment.CenterVertically) {
-                Column() {
-                    Image(
-                        painterResource(id = R.mipmap.w),
-                        contentDescription = "PhotoDeProfil",
-                        modifier = Modifier.size(200.dp)
-                    )
-                    Text(
-                        text = "Wiame Bouaboub",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(Modifier.height(20.dp))
-                    Text(
-                        text = "Etudiante",
-                        fontSize = 15.sp
-                    )
-                    Text(
-                        text = "Ecole d'ingénieurs ISIS Castres - INU Champollion",
-                        fontSize = 15.sp,
-                        fontStyle = FontStyle.Italic
-                    )
+                })},
+                bottomBar = {
+                    BottomNavigation {
+                        val navBackStackEntry by navController.currentBackStackEntryAsState()
+                        val currentDestination = navBackStackEntry?.destination
+
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Movie, contentDescription = null) },
+                            label = { Text("Films") },
+                            selected = currentDestination?.hierarchy?.any { it.route == "Films" } == true,
+                            onClick = {
+                                navController.navigate("Films")
+                            }
+                        )
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Slideshow, contentDescription = null) },
+                            label = { Text("Series") },
+                            selected = currentDestination?.hierarchy?.any { it.route == "series" } == true,
+                            onClick = { navController.navigate("series")}
+                        )
+                        BottomNavigationItem(
+                            icon = { Icon(Icons.Filled.Person, contentDescription = null) },
+                            label = { Text("Personnes") },
+                            selected = currentDestination?.hierarchy?.any { it.route == "Personnes" } == true,
+                            onClick = {navController.navigate("Personnes")}
+                        )
+                    }
                 }
 
-                Column() {
-                    Row() {
-                        Image(
-                            painterResource(id = R.mipmap.mail),
-                            contentDescription = "PhotoDeProfil",
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Text(
-                            text = "wiame.bouaboub@etud.univ-jfc.fr",
-                            fontSize = 12.sp,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
-                    Row() {
-                        Image(
-                            painterResource(id = R.mipmap.linkedin),
-                            contentDescription = "PhotoDeProfil",
-                            modifier = Modifier.size(30.dp)
-                        )
-                        Text(
-                            text = "www.linkedin.com/in/nicolas-singer",
-                            fontSize = 12.sp,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
-                    Button(onClick = { /* Do something! */ }) {
-                        Text("Démarrer")
-                    }
-                }
-            }
+        ) {
+            content()
         }
     }
 }
@@ -179,10 +130,3 @@ fun Profile(windowClass: WindowSizeClass) {
 
 
 
-
-@Preview(showBackground=true)
-@Composable
-fun DefaultPreview() {
-
-
-}
